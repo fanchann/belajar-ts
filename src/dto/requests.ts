@@ -1,4 +1,4 @@
-import {GetUserByEmailOrUsernameSchema} from "../schemas/validation.ts";
+import {GetUserByEmailOrUsernameSchema, RefreshTokenSchema} from "../schemas/validation.ts";
 
 export class UserLoginRequest {
   username?: string;
@@ -30,7 +30,9 @@ export class RefreshTokenRequest {
   refreshToken: string;
 
   constructor(refreshToken: string) {
-    this.refreshToken = refreshToken;
+    const validated = RefreshTokenSchema.parse({refreshToken});
+    this.refreshToken = validated.refreshToken;
+
   }
 
   public getRefreshToken(): string {

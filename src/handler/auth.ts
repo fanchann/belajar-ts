@@ -24,6 +24,7 @@ export class AuthHandlerImpl implements AuthHandler{
                 body.password
             );
 
+
             const response = await this.authUsecase.Login(userLoginRequest);
 
             if (!response) {
@@ -32,6 +33,13 @@ export class AuthHandlerImpl implements AuthHandler{
 
             return ctx.json(response.toJson());
         } catch (error) {
+            if (error instanceof Error) {
+                const formattedErrors = error.errors.map(e => ({
+                    field: e.path.join("."),
+                    message: e.message
+                }));
+                return ctx.json({error: "Invalid request", details: formattedErrors}, 400);
+            }
             return ctx.json({error: "Invalid request format"}, 400);
         }
     }
@@ -53,7 +61,13 @@ export class AuthHandlerImpl implements AuthHandler{
 
             return ctx.json(response.toJson());
         } catch (error) {
-            console.error("Refresh token error:", error);
+            if (error instanceof Error) {
+                const formattedErrors = error.errors.map(e => ({
+                    field: e.path.join("."),
+                    message: e.message
+                }));
+                return ctx.json({error: "Invalid request", details: formattedErrors}, 400);
+            }
             return ctx.json({error: "Invalid request"}, 400);
         }
     }

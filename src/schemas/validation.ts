@@ -45,3 +45,9 @@ export const GetUserByUsernameSchema = z.object({
         .min(1, 'Username is required')
         .max(50, 'Username must be less than 50 characters')
 });
+
+export const RefreshTokenSchema = z.object({
+    refreshToken: z.string()
+        .min(1, 'Refresh token is required')
+        .max(500, 'Refresh token must be less than 500 characters')
+})
