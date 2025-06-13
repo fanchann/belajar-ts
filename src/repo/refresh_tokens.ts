@@ -40,7 +40,6 @@ export class RefreshTokenRepoImpl implements RefreshTokenRepository{
     async FindRefreshToken(refreshToken: string): Promise<refresh_tokens | null> {
         return await this.prisma.refresh_tokens.findFirst({
             where: { token: refreshToken, revoked: false },
-            include: { user: true }
         });
     }
 }

@@ -2,7 +2,7 @@ import type {AuthHandler} from "./interfaces.ts";
 import type {Context} from "hono";
 import type {AuthUsecase} from "../usecase/interfaces.ts";
 import type {UserLoginResponse} from "../dto/responses.ts";
-import {UserLoginRequest} from "../dto/requests.ts";
+import {RefreshTokenRequest, UserLoginRequest} from "../dto/requests.ts";
 import * as console from "node:console";
 import {undefined} from "zod";
 
@@ -41,11 +41,11 @@ export class AuthHandlerImpl implements AuthHandler{
             const req = ctx.req;
             const body = await req.json();
 
-            if (!body.refreshToken) {
-                return ctx.json({error: "Refresh token is required"}, 400);
-            }
+            const refreshTokenRequest = new RefreshTokenRequest(
+                body.refreshToken.toString(),
+            )
 
-            const response = await this.authUsecase.RefreshToken(body.refreshToken);
+            const response = await this.authUsecase.RefreshToken(refreshTokenRequest);
 
             if (!response) {
                 return ctx.json({error: "Invalid refresh token"}, 401);

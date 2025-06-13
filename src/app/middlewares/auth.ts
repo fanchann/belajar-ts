@@ -17,7 +17,7 @@ export class AuthMiddleware {
       const payload = jwt.verify(token, ACCESS_TOKEN_SECRET);
       
       // Simpan payload user agar bisa diakses handler (optional)
-    //   ctx.set("user", payload);
+      ctx.set("user", payload);
 
       return await next();
     } catch (err: any) {

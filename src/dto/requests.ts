@@ -25,3 +25,15 @@ export class UserLoginRequest {
     return this.password;
   }
 }
+
+export class RefreshTokenRequest {
+  refreshToken: string;
+
+  constructor(refreshToken: string) {
+    this.refreshToken = refreshToken;
+  }
+
+  public getRefreshToken(): string {
+    return this.refreshToken;
+  }
+}

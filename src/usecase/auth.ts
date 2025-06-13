@@ -1,5 +1,5 @@
 import type {AuthUsecase} from "./interfaces.ts";
-import type {UserLoginRequest} from "../dto/requests.ts";
+import {RefreshTokenRequest, type UserLoginRequest} from "../dto/requests.ts";
 import {UserLoginResponse} from "../dto/responses.ts";
 import type {UsersRepositoryImpl} from "../repo/users.ts";
 import bcrypt from 'bcryptjs';
@@ -52,40 +52,56 @@ export class AuthUsecaseImpl implements AuthUsecase{
         );
     }
 
-    async RefreshToken(refreshToken: string): Promise<UserLoginResponse | null> {
+    async RefreshToken(refreshTokenReq: RefreshTokenRequest): Promise<UserLoginResponse | null> {
         try {
-            const storedToken = await this.refreshTokenRepo.FindRefreshToken(refreshToken);
+            const tokenStr = refreshTokenReq.getRefreshToken();
+
+            // Ambil token dari DB
+            const storedToken = await this.refreshTokenRepo.FindRefreshToken(tokenStr);
             if (!storedToken || storedToken.revoked || storedToken.expiresAt < new Date()) {
-                return null; // Token tidak sah / sudah dicabut / kadaluarsa
+                return null; // Token tidak valid
             }
 
-            // Verify refresh token
-            const payload = this.tokenService.verifyRefreshToken(refreshToken);
-
-            // Get user from database
+            // Verifikasi payload dari token
+            const payload = this.tokenService.verifyRefreshToken(tokenStr);
             const userId = parseInt(payload.sub);
-            const user = await this.repo.GetUserById(userId);
-            if (!user) {
-                return null;
+            const username = payload.username;
+
+            // Ambil user dari DB
+            const user = await this.repo.GetUserByUsernameOrEmail(username);
+            if (!user || user.id !== userId) {
+                return null; // Token valid tapi tidak cocok dengan user
             }
 
-            // Generate new tokens
+            // Generate access token baru
             const newAccessToken = this.tokenService.generateAccessToken(user);
-            const newRefreshToken = this.tokenService.generateRefreshToken(user);
 
-            // Optional: Save new refresh token and invalidate old one
-            await this.refreshTokenRepo.UpdateRefreshToken(userId, refreshToken, newRefreshToken);
+            // Hitung waktu kedaluwarsa
+            const timeToExpiry = storedToken.expiresAt.getTime() - Date.now();
+
+            let newRefreshToken: string;
+
+            if (timeToExpiry < 24 * 60 * 60 * 1000) {
+                // Kalau sisa waktu < 1 hari, buat token baru
+                newRefreshToken = this.tokenService.generateRefreshToken(user);
+                await this.refreshTokenRepo.UpdateRefreshToken(userId, tokenStr, newRefreshToken);
+            } else {
+                // Kalau belum mepet expired, tetap pakai yang lama
+                newRefreshToken = storedToken.token;
+            }
 
             return new UserLoginResponse(
                 user.id.toString(),
                 user.username || '',
                 newAccessToken,
                 newRefreshToken,
-                15 * 60 // 15 minutes in seconds
+                15 * 60 // 15 menit
             );
         } catch (error) {
+            console.error("Error during refresh token:", error);
             return null;
         }
     }
+
 
 }
