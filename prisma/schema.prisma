@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model products {
+  id        Int       @id @default(autoincrement())
+  nama      String    @db.LongText
+  deskripsi String?   @db.LongText
+  harga     Int       @default(0)
+  stok      Int       @default(0)
+  shopId    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  deletedAt DateTime? @db.Timestamp(6)
+  shop      shop[]
+}
+
+model shop {
+  id         Int       @id @default(autoincrement())
+  nama       String?   @db.LongText
+  deskripsi  String?   @db.LongText
+  ownerId    Int       @unique
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+  deletedAt  DateTime? @db.Timestamp(6)
+  products   products? @relation(fields: [productsId], references: [id])
+  users      users     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  productsId Int?
+}
+
+model users {
+  id            Int              @id @default(autoincrement())
+  username      String?          @unique @db.VarChar(25)
+  email         String?          @unique @db.VarChar(100)
+  password      String?          @db.LongText
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime?
+  deletedAt     DateTime?        @db.Timestamp(6)
+  refreshTokens refresh_tokens[]
+  shop          shop?
+}
+
+model refresh_tokens {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  revoked   Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  users     users    @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "refreshTokens_userId_fkey")
+}

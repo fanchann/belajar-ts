@@ -1,0 +1,33 @@
+{
+  "name": "online-shop",
+  "module": "index.ts",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.4",
+    "@jest/globals": "^30.0.0",
+    "@prisma/client": "^6.9.0",
+    "@types/bcrypt": "^5.0.2",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.9",
+    "add": "^2.0.6",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
+    "hono": "^4.7.11",
+    "jest": "^30.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^6.9.0",
+    "ts-jest": "^29.4.0",
+    "zod": "^3.25.64"
+  },
+  "scripts": {
+    "test": "jest"
+  }
+}
