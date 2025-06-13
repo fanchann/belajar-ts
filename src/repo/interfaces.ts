@@ -1,4 +1,4 @@
-import type {users} from "@prisma/client";
+import type {users,refresh_tokens} from "@prisma/client";
 
 export interface UsersRepository {
     CreateNewUser(data : users):Promise<users>;
@@ -7,4 +7,10 @@ export interface UsersRepository {
 
     // relations
     GetShopByUsernameUser(username: string):Promise<users|null>;
+}
+
+export interface RefreshTokenRepository {
+    SaveRefreshToken(userId: number, refreshToken: string): Promise<refresh_tokens | null>;
+    UpdateRefreshToken(userId: number, oldToken: string, newToken: string): Promise<refresh_tokens | null>;
+    FindRefreshToken(refreshToken: string): Promise<refresh_tokens | null>;
 }

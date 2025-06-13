@@ -32,7 +32,6 @@ export class AuthHandlerImpl implements AuthHandler{
 
             return ctx.json(response.toJson());
         } catch (error) {
-            console.error("Login error:", error);
             return ctx.json({error: "Invalid request format"}, 400);
         }
     }

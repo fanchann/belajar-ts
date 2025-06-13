@@ -2,8 +2,12 @@ import jwt from 'jsonwebtoken';
 import type {users} from "@prisma/client";
 
 // Should be in environment variables in a real application
-const ACCESS_TOKEN_SECRET = 'super_secret';
-const REFRESH_TOKEN_SECRET = 'another_super_secret';
+const ACCESS_TOKEN_SECRET = process.env.JWT_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET;
+const ACCESS_TOKEN_EXPIRATION = process.env.JWT_EXPIRES_IN || '15m'; // Default to 15 minutes
+const REFRESH_TOKEN_EXPIRATION = process.env.JWT_REFRESH_EXPIRES_IN || '7d'; // Default to 7 days
+
+
 
 export class TokenService {
     generateAccessToken(user: users): string {
@@ -13,7 +17,7 @@ export class TokenService {
                 username: user.username
             },
             ACCESS_TOKEN_SECRET,
-            { expiresIn: '15m' } // 15 minutes
+            { expiresIn: ACCESS_TOKEN_EXPIRATION } // 15 minutes
         );
     }
 
@@ -24,7 +28,7 @@ export class TokenService {
                 type: 'refresh'
             },
             REFRESH_TOKEN_SECRET,
-            { expiresIn: '7d' } // 7 days
+            { expiresIn:  REFRESH_TOKEN_EXPIRATION } // 7 days
         );
     }
 

@@ -4,14 +4,18 @@ import {UserLoginResponse} from "../dto/responses.ts";
 import type {UsersRepositoryImpl} from "../repo/users.ts";
 import bcrypt from 'bcryptjs';
 import {TokenService} from "../services/token.ts";
+import type {RefreshTokenRepository} from "../repo/interfaces.ts";
+import type {RefreshTokenRepoImpl} from "../repo/refresh_tokens.ts";
 
 export class AuthUsecaseImpl implements AuthUsecase{
     private repo: UsersRepositoryImpl;
     private tokenService: TokenService;
+    private refreshTokenRepo: RefreshTokenRepoImpl
 
-    constructor(repo: UsersRepositoryImpl, tokenService: TokenService) {
+    constructor(repo: UsersRepositoryImpl, tokenService: TokenService, refreshTokenRepo: RefreshTokenRepository) {
         this.repo = repo;
         this.tokenService = tokenService;
+        this.refreshTokenRepo = refreshTokenRepo;
     }
 
     async Login(req: UserLoginRequest): Promise<UserLoginResponse | null> {
@@ -33,6 +37,11 @@ export class AuthUsecaseImpl implements AuthUsecase{
         const accessToken = this.tokenService.generateAccessToken(user);
         const refreshToken = this.tokenService.generateRefreshToken(user);
 
+        console.log(refreshToken)
+        console.log(user)
+
+        await this.refreshTokenRepo.SaveRefreshToken(user.id, refreshToken);
+
 
         return new UserLoginResponse(
             user.id.toString(),
@@ -45,13 +54,17 @@ export class AuthUsecaseImpl implements AuthUsecase{
 
     async RefreshToken(refreshToken: string): Promise<UserLoginResponse | null> {
         try {
+            const storedToken = await this.refreshTokenRepo.FindRefreshToken(refreshToken);
+            if (!storedToken || storedToken.revoked || storedToken.expiresAt < new Date()) {
+                return null; // Token tidak sah / sudah dicabut / kadaluarsa
+            }
+
             // Verify refresh token
             const payload = this.tokenService.verifyRefreshToken(refreshToken);
 
             // Get user from database
             const userId = parseInt(payload.sub);
             const user = await this.repo.GetUserById(userId);
-
             if (!user) {
                 return null;
             }
@@ -61,7 +74,7 @@ export class AuthUsecaseImpl implements AuthUsecase{
             const newRefreshToken = this.tokenService.generateRefreshToken(user);
 
             // Optional: Save new refresh token and invalidate old one
-            // await this.repo.updateRefreshToken(userId, refreshToken, newRefreshToken);
+            await this.refreshTokenRepo.UpdateRefreshToken(userId, refreshToken, newRefreshToken);
 
             return new UserLoginResponse(
                 user.id.toString(),
