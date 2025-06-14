@@ -17,3 +17,23 @@ export class UserLoginResponse{
         };
     }
 }
+
+export class UserWithShopResponse {
+    constructor(
+        public userId: number,
+        public username: string,
+        public email: string,
+        public shopName?: string,
+        public shopId?: string
+    ) {}
+
+    public toJson() {
+        return {
+            userId: this.userId,
+            username: this.username,
+            email: this.email,
+            shopName: this.shopName,
+            shopId: this.shopId
+        };
+    }
+}

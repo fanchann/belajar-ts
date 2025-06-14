@@ -1,10 +1,11 @@
 import type {RefreshTokenRepository} from "./interfaces.ts";
-import {refresh_tokens} from "@prisma/client";
+import {refresh_tokens,PrismaClient} from "@prisma/client";
+
 
 export class RefreshTokenRepoImpl implements RefreshTokenRepository{
-    private prisma: any;
+    private prisma: PrismaClient;
 
-    constructor(prisma: any) {
+    constructor(prisma: PrismaClient) {
         this.prisma = prisma;
     }
     async SaveRefreshToken(userId: number, refreshToken: string): Promise<refresh_tokens | null> {

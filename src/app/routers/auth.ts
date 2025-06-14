@@ -1,11 +1,10 @@
 import type {AuthHandler} from "../../handler/interfaces.ts";
 import {type Context, Hono} from "hono";
 
-export function AuthRouter(authHandler: AuthHandler){
-    const router = new Hono();
+export function AuthRouter(h: Hono,authHandler: AuthHandler){
 
-    router.post('/login', (ctx: Context) => authHandler.Login(ctx));
-    router.post('/refresh', (ctx: Context) => authHandler.RefreshToken(ctx));
+    h.post('/login', (ctx: Context) => authHandler.Login(ctx));
+    h.post('/refresh', (ctx: Context) => authHandler.RefreshToken(ctx));
 
-    return router
+    return h
 }
