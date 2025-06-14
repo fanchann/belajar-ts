@@ -4,6 +4,7 @@ import type {Context} from "hono";
 
 export class UsersHandlerImpl implements UsersHandler{
     private userUsecas: UserUsecaase;
+   
     constructor(userUsecas: UserUsecaase) {
         this.userUsecas = userUsecas;
     }
@@ -12,7 +13,6 @@ export class UsersHandlerImpl implements UsersHandler{
         const page = parseInt(ctx.req.query('page') || "1") || 1;
         const limit = parseInt(ctx.req.query('limit') || "10") || 10;
         // query parameter example: /?page=1&limit=10
-        console.log("GetAllUsersWithRelations called with page:", page, "and limit:", limit);
 
         if (page < 1 || limit < 1) {
             return ctx.json({error: 'Page and limit must be greater than 0'}, 400);
@@ -27,20 +27,18 @@ export class UsersHandlerImpl implements UsersHandler{
     }
 
     async SearchUserIncludeShopByUsername(ctx: Context): Promise<Response> {
-       // Get the username from the query parameters
-        const username = ctx.req.query('username');
-        // query parameter example: /search?username=johndoe
+        const username = ctx.req.query('username');        
         if (!username) {
             return ctx.json({error: 'Username is required'}, 400);
         }
 
         try {
-            const user = await this.userUsecas.SearchUserIncludeShopByUsername(username);
-            if (!user) {
+            const {UserWithShopResponsems,ttl} = await this.userUsecas.SearchUserIncludeShopByUsername(username);
+            if (!UserWithShopResponsems || UserWithShopResponsems.length === 0) {
                 return ctx.json({error: 'User not found'}, 404);
             }
 
-            return ctx.json(user, 200);
+            return ctx.json({users: UserWithShopResponsems, ttl}, 200);
         } catch (error) {
             console.error("Error in SearchUserIncludeShopByUsername:", error);
             return ctx.json({error: 'Internal server error'}, 500);

@@ -8,25 +8,18 @@ export class UsersRepositoryImpl implements UsersRepository{
         this.prisma = prisma;
     }
 
-    async SearchUserIncludeShopByUsername(username: string): Promise<{users: users[]; ttl: number} | null> {
-    
+    async SearchUserIncludeShopByUsername(username: string): Promise<{users: users[]; ttl: number}> {
     // find user like username
     const user = await this.prisma.users.findMany({
         where: {
             username: {
                 contains: username,
-                mode: 'insensitive' // Case-insensitive search
             }
         },
         include: {
             shop: true // Include related shop data
         }
     });
-    
-    // Check if any users found
-    if (user.length === 0) {
-        return null;
-    }
     
     return {
         users: user, 
@@ -43,9 +36,9 @@ export class UsersRepositoryImpl implements UsersRepository{
             }),
             this.prisma.users.count()
         ]);
-        users.forEach(user => {
-            console.log(`User: ${user.username}, Shop: ${user.shop?.nama || 'No Shop'}`);
-        })
+        if (!users || users.length === 0) {
+            return { users: [], total: 0 };
+        }
         return { users, total };
     }
 

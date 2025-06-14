@@ -7,7 +7,7 @@ export interface AuthUsecase {
 }
 
 export interface UserUsecaase{
-    SearchUserIncludeShopByUsername(username: string): Promise<UserWithShopResponse[] | null>;
+    SearchUserIncludeShopByUsername(username: string): Promise<{UserWithShopResponsems: UserWithShopResponse[]; ttl: number}>;
     GetUserIncludeShopByUsername(username: string): Promise<UserWithShopResponse | null>;
     GetAllUsersWithRelations(page: number, limit: number): Promise<{ users: UserWithShopResponse[]; total: number }>;
 }

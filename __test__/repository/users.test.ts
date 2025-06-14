@@ -31,3 +31,17 @@ describe("get all users with relations", () => {
         }
     });
 });
+
+describe("search user include shop by username", () => {
+    const prisma = new PrismaClient();
+    const usersRepo = new UsersRepositoryImpl(prisma);
+
+    it("search user by username", async () => {
+        try {
+            const result = await usersRepo.SearchUserIncludeShopByUsername("xpGTsjY");
+            console.log(result);
+        } catch (error) {
+            console.error("Error searching user:", error);
+        }
+    });
+});

@@ -3,7 +3,7 @@ import type {users,refresh_tokens} from "@prisma/client";
 export interface UsersRepository {
     CreateNewUser(data : users):Promise<users>;
     GetUserByUsernameOrEmail(username?:string, email?:string):Promise<users | null>;
-    SearchUserIncludeShopByUsername(username: string): Promise<{users: users[]; ttl: number} | null>;
+    SearchUserIncludeShopByUsername(username: string): Promise<{users: users[]; ttl: number}>;
 
 
     // get all users with relations & pagination

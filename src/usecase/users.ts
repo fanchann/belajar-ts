@@ -9,7 +9,6 @@ export class UserUsecaseImpl implements UserUsecaase{
     }
 
     async GetAllUsersWithRelations(page: number, limit: number): Promise<{ users: UserWithShopResponse[]; total: number }> {
-        console.log("GetAllUsersWithRelations called with page:", page, "and limit:", limit);
         try {
             const {users, total} = await this.UserRepo.GetAllUsersWithRelations(page, limit);
             const userResponses = users.map(user => new UserWithShopResponse(
@@ -26,14 +25,17 @@ export class UserUsecaseImpl implements UserUsecaase{
         }
     }
 
-async SearchUserIncludeShopByUsername(username: string): Promise<UserWithShopResponse[] | null> {
+async SearchUserIncludeShopByUsername(username: string): Promise<{UserWithShopResponsems: UserWithShopResponse[]; ttl: number}> {
     try {
-        const result = await this.UserRepo.SearchUserIncludeShopByUsername(username);
-        if (!result || result.users.length === 0) {
-            return null;
+        const {users ,ttl} = await this.UserRepo.SearchUserIncludeShopByUsername(username);
+        if (!users || users.length === 0) {
+            console.log("No users found for username:", username);
+            return {UserWithShopResponsems: [], ttl: 0};
         }
 
-        const userResponses = result.users.map(u => new UserWithShopResponse(
+
+
+        const userResponses = users.map(u => new UserWithShopResponse(
             u.id,
             u.username || '',
             u.email || '',
@@ -41,7 +43,7 @@ async SearchUserIncludeShopByUsername(username: string): Promise<UserWithShopRes
             u.shop?.id || undefined,
         ));
 
-        return userResponses;
+        return {UserWithShopResponsems: userResponses, ttl};
     } catch (error) {
         console.error("Error in SearchUserIncludeShopByUsername:", error);
         throw error; // Re-throw untuk handling di handler

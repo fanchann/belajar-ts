@@ -16,9 +16,9 @@ import {HealthCheckHandlerImpl} from "../handler/health_check.ts";
 import {HealthCheckRouter} from "./routers/health_check.ts";
 
 export function InitApp(){
-    const prisma = new PrismaClient({
-        log: ['query', 'info', 'warn', 'error'],
-    });
+    const prisma = new PrismaClient(
+        {log: ['query', 'info', 'warn', 'error']}
+    );
 
     // middleware
     const logMiddleware = new LoggerMiddleware();
@@ -39,7 +39,9 @@ export function InitApp(){
 
     const app = new Hono();
 
-    app.use('*', (ctx: Context, next: () => Promise<any>) => logMiddleware.logRequest(ctx, next),);
+
+    app.use('*', (ctx: Context, next: () => Promise<any>) => logMiddleware.logRequest(ctx, next));
+    
     app.route('/auth',AuthRouter(app,authHandler));
     app.route('/health', HealthCheckRouter(app, healthCheckHandler));
     app.route('/users', UserRouter(app,userHandler));
