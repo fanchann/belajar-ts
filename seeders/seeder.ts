@@ -1,55 +1,59 @@
 import { PrismaClient } from '@prisma/client';
+import { faker } from '@faker-js/faker';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-export async function main() {
-    // Hapus data lama (optional, hati-hati di production)
-    await prisma.refresh_tokens.deleteMany();
+async function main() {
+    // Bersihkan data lama
+    await prisma.$executeRawUnsafe(`SET FOREIGN_KEY_CHECKS = 0`);
     await prisma.products.deleteMany();
     await prisma.shop.deleteMany();
     await prisma.users.deleteMany();
+    await prisma.$executeRawUnsafe(`SET FOREIGN_KEY_CHECKS = 1`);
 
-    const users = [];
-    const shops = [];
-    const products = [];
+    for (let i = 1; i <= 20; i++) {
+        const username = faker.internet.userName();
+        const email = faker.internet.email();
+        const rawPassword = 'password123';
+        const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
-    for (let i = 1; i <= 10; i++) {
-        const hashedPassword = await bcrypt.hash(`password${i}`, 10);
-
+        // Buat user
         const user = await prisma.users.create({
             data: {
-                username: `user${i}`,
-                email: `user${i}@example.com`,
+                username,
+                email,
                 password: hashedPassword,
+                createdAt: new Date(),
             },
         });
-        users.push(user);
 
+        // Buat shop milik user
         const shop = await prisma.shop.create({
             data: {
-                nama: `Toko ${i}`,
-                deskripsi: `Deskripsi untuk toko ${i}`,
+                nama: `Toko ${faker.word.words(1)}`,
+                deskripsi: faker.lorem.sentence(),
                 ownerId: user.id,
+                createdAt: new Date(),
             },
         });
-        shops.push(shop);
 
+        // Buat 2 produk per shop
         for (let j = 1; j <= 2; j++) {
-            const product = await prisma.products.create({
+            await prisma.products.create({
                 data: {
-                    nama: `Produk ${j} dari Toko ${i}`,
-                    deskripsi: `Deskripsi produk ${j} milik toko ${i}`,
-                    harga: 1000 * j * i,
+                    nama: `${faker.commerce.product()} ${faker.commerce.productAdjective()}`,
+                    deskripsi: faker.lorem.paragraph(),
+                    harga: 1000 * (j + i),
                     stok: 10 * j,
                     shopId: shop.id,
+                    createdAt: new Date(),
                 },
             });
-            products.push(product);
         }
     }
 
-    console.log(`✅ Seeding selesai: ${users.length} users, ${shops.length} shops, ${products.length} products`);
+    console.log('✅ Seeder selesai. Data berhasil dimasukkan.');
 }
 
 main()
@@ -60,3 +64,4 @@ main()
     .finally(async () => {
         await prisma.$disconnect();
     });
+

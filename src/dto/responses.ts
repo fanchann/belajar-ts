@@ -37,3 +37,19 @@ export class UserWithShopResponse {
         };
     }
 }
+
+export class ShopWithProductsResponse {
+    constructor(
+        public shopId: number,
+        public shopName: string,
+        public products: { id: number; name: string; price: number }[]
+    ) {}
+
+    public toJson() {
+        return {
+            shopId: this.shopId,
+            shopName: this.shopName,
+            products: this.products
+        };
+    }
+}

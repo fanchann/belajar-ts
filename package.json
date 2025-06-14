@@ -11,6 +11,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.8.0",
     "@hono/node-server": "^1.14.4",
     "@jest/globals": "^30.0.0",
     "@prisma/client": "^6.9.0",
@@ -28,6 +29,7 @@
     "zod": "^3.25.64"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "seed": "bun prisma db seed"
   }
 }

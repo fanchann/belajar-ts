@@ -13,7 +13,7 @@ describe("get shop user by username user", () => {
     it("get shop user by username",async () => {
         try {
             const user = await UserUsecase.SearchUserIncludeShopByUsername("xpGTsjY");
-            console.log(user?.toJson());
+            console.log(user);
         } catch (error) {
             console.error("Error fetching user:", error);
         }

@@ -1,6 +1,5 @@
 import {InitApp} from "./src/app/init.ts";
 import {serve} from "@hono/node-server";
-import {main} from "./seeders/seeder.ts";
 
 const app = InitApp();
 

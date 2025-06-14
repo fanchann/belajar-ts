@@ -1,11 +1,15 @@
 import type {AuthUsecase} from "./interfaces.ts";
 import {RefreshTokenRequest, type UserLoginRequest} from "../dto/requests.ts";
 import {UserLoginResponse} from "../dto/responses.ts";
-import type {UsersRepositoryImpl} from "../repo/users.ts";
+import  {type UsersRepositoryImpl} from "../repo/users.ts";
 import bcrypt from 'bcryptjs';
 import {TokenService} from "../services/token.ts";
 import type {RefreshTokenRepository} from "../repo/interfaces.ts";
-import type {RefreshTokenRepoImpl} from "../repo/refresh_tokens.ts";
+import  {type RefreshTokenRepoImpl} from "../repo/refresh_tokens.ts";
+import * as console from "node:console";
+import * as console from "node:console";
+import * as console from "node:console";
+import {undefined} from "zod";
 
 export class AuthUsecaseImpl implements AuthUsecase{
     private repo: UsersRepositoryImpl;
@@ -101,6 +105,10 @@ export class AuthUsecaseImpl implements AuthUsecase{
             console.error("Error during refresh token:", error);
             return null;
         }
+    }
+
+    CreateNewUser(req: any): Promise<any> | null {
+        return undefined;
     }
 
 
